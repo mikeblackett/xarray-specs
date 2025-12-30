@@ -1,0 +1,38 @@
+[project]
+name = "xarray-specs"
+version = "0.0.0"
+description = "A tiny validation library for xarray"
+readme = "README.md"
+authors = [
+    { name = "Mike Blackett", email = "27811528+mikeblackett@users.noreply.github.com" },
+]
+requires-python = ">=3.11"
+dependencies = [
+    "attrs>=25.4.0",
+    "cattrs>=25.3.0",
+    "xarray>=0.18.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.6,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.1.0",
+    "pyright>=1.1.407",
+    "ruff>=0.14.10",
+    "xarray[io]>=2025.12.0",
+    { include-group = "test" },
+]
+test = [
+    "coverage>=7.13.1",
+    "hypothesis>=6.148.8",
+    "pyright>=1.1.407",
+    "pytest-cov>=7.0.0",
+]
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.format]
+quote-style = "single"
