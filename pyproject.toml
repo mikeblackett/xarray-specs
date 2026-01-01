@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "Mike Blackett", email = "27811528+mikeblackett@users.noreply.github.com" },
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "attrs>=25.4.0",
     "cattrs>=25.3.0",
