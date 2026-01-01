@@ -9,6 +9,8 @@ import xarray as xr
 
 from xarray_specs.converter import converter
 
+__all__ = ['DataArraySpec', 'DatasetSpec', 'Spec']
+
 type Attrs = Mapping[str, Any]
 type Dims = Sequence[str]
 type Coords = Mapping[str, DataArraySpec]

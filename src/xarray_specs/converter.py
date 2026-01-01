@@ -6,6 +6,8 @@ import attrs as at
 import cattrs as cat
 import numpy as np
 
+__all__ = ['converter']
+
 
 def _is_generic_dtype(typ: type) -> bool:
     return get_origin(typ) is np.dtype
@@ -49,6 +51,7 @@ converter.register_structure_hook_factory(
         cls,
         converter,
         _cattrs_forbid_extra_keys=False,
+        # Allow user specified converters to take precedence
         _cattrs_prefer_attrib_converters=True,
         _cattrs_use_alias=True,
     ),
