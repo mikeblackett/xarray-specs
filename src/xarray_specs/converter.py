@@ -23,7 +23,15 @@ def _unstructure_dtype(value: np.dtype) -> str:
     return value.name
 
 
+def _validate_type[T: type](value: Any, type_of: T) -> T:
+    if not isinstance(value, type_of):
+        raise TypeError(f'{value!r} not an instance of {type_of}')
+    return value
+
+
 converter = cat.Converter()
+for typ in (int, float, str, bytes):
+    converter.register_structure_hook(typ, _validate_type)
 converter.register_structure_hook(np.dtype, lambda d, _: np.dtype(d))
 converter.register_structure_hook_func(
     _is_generic_dtype, _structure_generic_dtype
