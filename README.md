@@ -13,30 +13,30 @@ Create specifications of [xarray](https://docs.xarray.dev/en/stable/index.html) 
 ## Quick start
 
 ```python
-from typing import Annotated
+from typing import Literal
 
 import attrs as at
 import numpy as np
 import xarray as xr
 
-from xarray_specs import DataArraySpec, Spec, converter
+from xarray_specs import DataArraySpec
 
 da = xr.DataArray(
     data=[1, 2, 3],
-    dims=["x"],
-    name="yipeee",
+    dims=['x'],
+    name='yipeee',
 )
-# un-structure a data array to a Python dict
-data = converter.unstructure(da, DataArraySpec)
+
 
 @at.frozen
-class XSpec(Spec):
-    dtype: Annotated[np.dtype, np.int32, np.int64]  # np.int32 or np.int64
+class MySpec(DataArraySpec):
+    dtype: np.dtype[np.int64]
     dims: tuple[Literal['x']]
-    name: str = at.field(validator=at.validators.matches_re(r"^yipee+$"))
+    # Use `attrs` validators for constraints you can't express with the type system
+    name: str = at.field(validator=at.validators.matches_re(r'^yipee+$'))
 
 
-XSpec.validate(da)
+MySpec.validate(da)
 ```
 
 ## Installation
