@@ -1,32 +1,34 @@
 from __future__ import annotations
 
-from typing import Annotated, get_args, get_origin
+from typing import Any, get_args, get_origin
 
 import attrs as at
 import cattrs as cat
 import numpy as np
 
 
-def is_annotated_dtype(typ):
-    return get_origin(typ) is Annotated and get_args(typ)[0] is np.dtype
+def _is_generic_dtype(typ: type) -> bool:
+    return get_origin(typ) is np.dtype
 
 
-def structure_annotated_dtype(value, typ):
-    _, *meta = get_args(typ)
-    actual = np.dtype(value)
-    for constraint in meta:
-        expected = np.dtype(constraint)
-        if actual == expected:
-            return actual
-    raise ValueError(f'{actual} is not one of {[np.dtype(c) for c in meta]}.')
+def _structure_generic_dtype(value: Any, typ: np.dtype) -> np.dtype:
+    scalar, *_ = get_args(typ)
+    dtype = np.dtype(value)
+    if dtype != scalar:
+        raise TypeError(f'expected {np.dtype(scalar)!r}, got {dtype!r}.')
+    return dtype
+
+
+def _unstructure_dtype(value: np.dtype) -> str:
+    return value.name
 
 
 converter = cat.Converter()
-converter.register_unstructure_hook(np.dtype, lambda v: str(np.dtype(v)))
+converter.register_structure_hook(np.dtype, lambda d, _: np.dtype(d))
 converter.register_structure_hook_func(
-    is_annotated_dtype, structure_annotated_dtype
+    _is_generic_dtype, _structure_generic_dtype
 )
-converter.register_structure_hook(np.dtype, lambda v, _: np.dtype(v))
+converter.register_unstructure_hook_func(_is_generic_dtype, _unstructure_dtype)
 converter.register_unstructure_hook_factory(
     at.has,
     lambda cls: cat.gen.make_dict_unstructure_fn(
