@@ -15,7 +15,7 @@ type Attrs = Mapping[str, Any]
 type Dims = Sequence[str]
 type Coords = Mapping[str, DataArraySpec]
 type DataVars = Mapping[str, DataArraySpec]
-type DTypes = Mapping[str, np.generic]
+type DTypes = Mapping[str, np.dtype]
 type Encoding = Mapping[str, Any]
 type Shape = Sequence[int]
 type Sizes = Mapping[str, int]
@@ -116,7 +116,7 @@ class DataArraySpec(Spec[xr.DataArray]):
 
     attrs: Attrs | None
     dims: Dims | None
-    dtype: np.generic | None
+    dtype: np.dtype | None
     coords: Coords | None
     encoding: Encoding | None
     shape: Shape | None
