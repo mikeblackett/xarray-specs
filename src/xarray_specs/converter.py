@@ -8,12 +8,26 @@ import cattrs as cat
 import numpy as np
 import xarray as xr
 
-from xarray_specs.schema import VariableSchema
+from xarray_specs.schema import Schema, VariableSchema
 
 __all__ = ['make_converter']
 
 
-def make_converter(converter: cat.Converter) -> cat.Converter:
+class XarrayConverter(cat.Converter):
+    def validate(
+        self, obj: Any, unstructure_as: type[Schema], **kwargs: Any
+    ) -> None:
+        raw = self.unstructure(obj, unstructure_as)
+        self.structure(raw, unstructure_as)
+
+
+def make_converter(*args, **kwargs) -> cat.Converter:
+    converter = XarrayConverter(*args, **kwargs)
+    configure_converter(converter)
+    return converter
+
+
+def configure_converter(converter: cat.Converter) -> cat.Converter:
     for typ in (int, float, str, bytes):
         converter.register_structure_hook(typ, _validate_type)
 
