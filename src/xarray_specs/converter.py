@@ -21,7 +21,7 @@ class XarrayConverter(cat.Converter):
         self.structure(raw, unstructure_as)
 
 
-def make_converter(*args, **kwargs) -> cat.Converter:
+def make_converter(*args, **kwargs) -> XarrayConverter:
     converter = XarrayConverter(*args, **kwargs)
     configure_converter(converter)
     return converter
@@ -41,10 +41,12 @@ def configure_converter(converter: cat.Converter) -> cat.Converter:
 
     @converter.register_unstructure_hook
     def unstructure_dtype(value: np.dtype) -> str:
-        return value.name
+        # TODO: Support structured dtypes
+        return value.str
 
     @converter.register_structure_hook
     def structure_dtype(value: Any, typ: type[np.dtype]) -> np.dtype:
+        # TODO: Add custom exception message
         return typ(value)
 
     @converter.register_unstructure_hook_factory(_is_generic_dtype)
@@ -79,9 +81,8 @@ def configure_converter(converter: cat.Converter) -> cat.Converter:
 
     @converter.register_unstructure_hook
     def unstructure_data_array(value: xr.DataArray) -> dict:
-        # Here we unstructure to VariableSchema, not DataArraySchema.
-        # This hook is only for coordinates/data variables which should not
-        # have `name` or `coords` fields`.
+        # Unstructure to VariableSchema, not DataArraySchema.
+        # This hook is only for nested data arrays (i.e. coordinates/data variables) which should not have fields `name` (it's the mapping key) or `coords` (we don't want to recurse into the coords of coords...)`.
         return converter.unstructure(value, VariableSchema)
 
     @converter.register_unstructure_hook_factory(is_typeddict)
