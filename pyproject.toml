@@ -36,3 +36,10 @@ line-length = 79
 
 [tool.ruff.format]
 quote-style = "single"
+
+[tool.coverage.run]
+source = ["livecov"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=xarray_specs --cov-report=xml --cov-report=term"
+testpaths = ["tests"]
