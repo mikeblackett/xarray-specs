@@ -113,10 +113,8 @@ def configure_converter(converter: cat.Converter) -> cat.Converter:
         def unstructure_coordinates(obj):
             result = {}
             for key, schema in cls.__annotations__.items():
-                if key not in obj:
-                    # TODO: We shouldn't raise errors when unstructuring
-                    raise KeyError(f'unknown item {key}')
-                result[key] = converter.unstructure(obj[key], schema)
+                if key in obj:
+                    result[key] = converter.unstructure(obj[key], schema)
             return result
 
         return unstructure_coordinates
