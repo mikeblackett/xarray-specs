@@ -8,18 +8,19 @@ import numpy as np
 
 __all__ = [
     'DataArraySchema',
+    'DatasetSchema',
     'VariableSchema',
 ]
 
 type Attrs = Mapping[str, Any] | None
 type Coords = Mapping[str, Any] | None
+type DataVars = Mapping[str, Any] | None
 type Dims = Sequence[str] | None
 type DType = np.dtype | None
-type DTypes = Mapping[str, np.dtype] | None
 type Encoding = Mapping[str, Any] | None
+type Name = str | None
 type Shape = Sequence[int] | None
 type Size = int | None
-type Name = str | None
 
 
 @at.frozen(kw_only=True)
@@ -40,3 +41,12 @@ class VariableSchema(Schema):
 class DataArraySchema(VariableSchema):
     coords: Coords
     name: Name
+
+
+@at.frozen(kw_only=True)
+class DatasetSchema(Schema):
+    attrs: Attrs
+    coords: Coords
+    data_vars: DataVars
+    dims: Dims
+    encoding: Encoding
