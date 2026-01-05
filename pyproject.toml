@@ -1,6 +1,6 @@
 [project]
 name = "xarray-specs"
-version = "0.0.0"
+version = "0.1.1-alpha"
 description = "A tiny validation library for xarray"
 readme = "README.md"
 authors = [

@@ -7,8 +7,9 @@ import attrs as at
 import cattrs as cat
 import numpy as np
 import xarray as xr
+import xarray.core.utils as xr_utils
 
-from xarray_specs.schema import Schema, VariableSchema
+from xarray_specs.schema import DatasetSchema, Schema, VariableSchema
 
 __all__ = ['make_converter']
 
@@ -60,6 +61,18 @@ def configure_converter(converter: cat.Converter) -> cat.Converter:
 
         return unstructure_generic_dtype
 
+    def structure_dataset_dims(
+        value: xr_utils.FrozenMappingWarningOnValuesAccess, typ: type
+    ) -> list[str]:
+        return list(value.keys())
+
+    converter.register_structure_hook_func(
+        lambda cls: issubclass(
+            cls, xr_utils.FrozenMappingWarningOnValuesAccess
+        ),
+        structure_dataset_dims,
+    )
+
     @converter.register_structure_hook_factory(_is_generic_dtype)
     def structure_dtype_factory(
         cls: Any, converter: cat.Converter
@@ -80,10 +93,20 @@ def configure_converter(converter: cat.Converter) -> cat.Converter:
         return structure_generic_dtype
 
     @converter.register_unstructure_hook
+    def unstructure_numpy_array(value: np.ndarray) -> list:
+        return value.tolist()
+
+    @converter.register_unstructure_hook
     def unstructure_data_array(value: xr.DataArray) -> dict:
         # Unstructure to VariableSchema, not DataArraySchema.
-        # This hook is only for nested data arrays (i.e. coordinates/data variables) which should not have fields `name` (it's the mapping key) or `coords` (we don't want to recurse into the coords of coords...)`.
+        # This hook is only for nested data arrays (i.e. coordinates/data variables)
+        # which should not have fields `name` (it's the mapping key) or `coords`
+        # (we don't want to recurse into the coords of coords...)`.
         return converter.unstructure(value, VariableSchema)
+
+    @converter.register_unstructure_hook
+    def unstructure_dataset(value: xr.Dataset) -> dict:
+        return converter.unstructure(value, DatasetSchema)
 
     @converter.register_unstructure_hook_factory(is_typeddict)
     def unstructure_coordinates_factory(cls: Any, converter: cat.Converter):
@@ -91,6 +114,7 @@ def configure_converter(converter: cat.Converter) -> cat.Converter:
             result = {}
             for key, schema in cls.__annotations__.items():
                 if key not in obj:
+                    # TODO: We shouldn't raise errors when unstructuring
                     raise KeyError(f'unknown item {key}')
                 result[key] = converter.unstructure(obj[key], schema)
             return result
