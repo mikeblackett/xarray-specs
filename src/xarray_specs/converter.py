@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Hashable
 from typing import Any, get_args, get_origin, is_typeddict
 
 import attrs as at
@@ -31,6 +31,19 @@ def make_converter(*args, **kwargs) -> XarrayConverter:
 def configure_converter(converter: cat.Converter) -> cat.Converter:
     for typ in (int, float, str, bytes):
         converter.register_structure_hook(typ, _validate_type)
+
+    @converter.register_structure_hook_factory(lambda cls: cls is Hashable)
+    def structure_hashable_factory(cls: Any) -> Callable:
+        # This prevents cattrs complaining about Hashable if user schema don't
+        # narrow default Hashable types (dims, names etc).
+        def structure_hashable(value: Any, typ: type) -> Hashable:
+            value_type = type(value)
+            if not issubclass(value_type, Hashable):
+                raise TypeError(f'expected a hashable type, got {value}.')
+            hook = converter.get_structure_hook(value_type)
+            return hook(value, value_type)
+
+        return structure_hashable
 
     @converter.register_unstructure_hook
     def unstructure_scalar(value: np.generic) -> str | int | float | complex:

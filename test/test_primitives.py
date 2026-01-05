@@ -1,3 +1,5 @@
+from collections.abc import Hashable
+
 import hypothesis as hp
 import hypothesis.strategies as st
 import pytest as pt
@@ -30,3 +32,20 @@ def test_invalid_primitive_structure_fails(data: st.DataObject) -> None:
     hp.assume(not (type(value) is bool and typ is int))
     with pt.raises(TypeError):
         converter.structure(value, typ)
+
+
+@hp.given(value=primitives())
+def test_hashable_allows_primitive_value_passthrough(
+    value: int | float | str | bool,
+) -> None:
+    """Structuring a primitive value to a Hashable should pass through the value."""
+    converter = make_converter()
+    result = converter.structure(value, Hashable)
+    assert type(result) is type(value)
+
+
+def test_invalid_hashable_fails() -> None:
+    """Structuring a non-hashable value to Hashable should raise an exception."""
+    converter = make_converter()
+    with pt.raises(TypeError, match='expected a hashable'):
+        converter.structure({}, Hashable)
