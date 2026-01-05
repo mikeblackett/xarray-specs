@@ -11,5 +11,8 @@ wheels/
 
 # Test
 .hypothesis/
+.coverage
+coverage.xml
 
 notebooks/
+
