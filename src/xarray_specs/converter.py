@@ -52,7 +52,7 @@ def configure_converter(converter: cat.Converter) -> cat.Converter:
 
     @converter.register_unstructure_hook_factory(_is_generic_dtype)
     def unstructure_dtype_factory(
-        cls: Any, converter: cat.Converter
+        cls: type, converter: cat.Converter
     ) -> Callable:
         handler = converter.get_unstructure_hook(np.dtype)
 
@@ -75,7 +75,7 @@ def configure_converter(converter: cat.Converter) -> cat.Converter:
 
     @converter.register_structure_hook_factory(_is_generic_dtype)
     def structure_dtype_factory(
-        cls: Any, converter: cat.Converter
+        cls: type, converter: cat.Converter
     ) -> Callable:
         scalar = get_args(cls)[0]
         handler = converter.get_structure_hook(np.dtype)
@@ -109,7 +109,7 @@ def configure_converter(converter: cat.Converter) -> cat.Converter:
         return converter.unstructure(value, DatasetSchema)
 
     @converter.register_unstructure_hook_factory(is_typeddict)
-    def unstructure_coordinates_factory(cls: Any, converter: cat.Converter):
+    def unstructure_coordinates_factory(cls: type, converter: cat.Converter):
         def unstructure_coordinates(obj):
             result = {}
             for key, schema in cls.__annotations__.items():
