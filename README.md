@@ -1,10 +1,10 @@
+> [!WARNING]  
+> This package is no longer being developed.
+> I started writing this library as attrs + cattrs experiment. There are much better ways to validate xarray data structures, like Pandera's [xarray integration](https://pandera.readthedocs.io/en/stable/xarray_guide/index.html). I'll use that. 
+
 # xarray-specs
 
 A tiny validation library for xarray.
-
-> [!WARNING]  
-> This package is in an early stage of development.
-> Frequent and breaking changes are expected.
 
 ## Overview
 
